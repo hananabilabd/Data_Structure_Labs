@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1541342344 source:f:\engineering\iti\data structure\linkedlist\main.c
+	<stdio.h>
+	<windows.h>
+
