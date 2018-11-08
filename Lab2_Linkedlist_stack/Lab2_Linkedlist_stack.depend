@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1541414604 source:f:\engineering\iti\data_structure_labs\lab2_linkedlist_stack\main.c
+	<stdio.h>
+	<windows.h>
+

@@ -2,11 +2,11 @@
 #include<windows.h>
 #define null 0
 //--------------------------Global Variables----------------
-char menu[7][13]={"New","Search","Delete","Insert","Display All","Display","Exit"};
+char menu[3][13]={"Enqueue","Dequeue","Exit"};
 
 void display_Items(state){
     int i ;
-  for (i =0 ; i< 7 ; i++){
+  for (i =0 ; i< 3 ; i++){
                 if (i==state){
                     textattr(20);// Red = 4 and White = 7
                     printf("%s\n",menu[i]);
@@ -55,13 +55,13 @@ void gotoxy(int x,int y)
      new_node->next=new_node->prev=null;
      return new_node;
  }
- void add_node (node * new_node){
+ void enqueue_node (node * new_node){
      if(first ==null){
-        first=last=new_node;
+        first =new_node;
+        last=new_node;
      }
      else{
-        last->next=new_node;
-        new_node->prev=last;
+        last->next =new_node;
         last = new_node;
      }
  }
@@ -75,26 +75,17 @@ void gotoxy(int x,int y)
         p=p->next;
      }
  }
- void delete_node(node *p ){
-     if (p ==first){
-        if (p ==last){
-            first = last =null;
+ node * dequeue_node(){
+        node * temp = null;
+        if (first !=null){
+            temp =first;
+            first =first->next;
+            temp->next=null;
         }
-        else {
-            first= first->next;
-            first->prev=null;
-        }
-     }
-     else if (p ==last){
-         last = last->prev;
-         last->next =null;
+        return temp;
 
-     }
-     else {
-        p->prev->next =p->next;
-        p->next->prev=p->prev;
-     }
-     free(p);
+
+     //free(p);
  }
  node * search_node(int data){
      node *Psearch=first;
@@ -146,7 +137,7 @@ while (exit !=1){
           if (c == 72 ){ //up
              system("cls");
              state--;
-             if (state <0){state =6;}
+             if (state <0){state =2;}
 
 		display_Items(state);
 
@@ -155,7 +146,7 @@ while (exit !=1){
 
            system("cls");
            state++;
-             if (state >6){state =0;}
+             if (state >2){state =0;}
           display_Items(state);
         }
 
@@ -177,41 +168,22 @@ while (exit !=1){
 
         }
         else if (c== 13){
-            if (state == 0){
+            if (state == 0){//Push
             create =1 ;
             c = 0;
             }
-            else if (state ==1){
-
-            search =1 ;
-            c = 0;
-
-        }
-        else if (state ==2 ){
+            else if (state ==1){//Pop
 
             del =1 ;
             c = 0;
-        }
-        else if (state ==3){
 
-            insert =1 ;
-            c = 0;
         }
-        else if (state ==4){
-
-            displayAll =1 ;
-            c = 0;
-        }
-        else if (state ==5){
-
-            display_one =1 ;
-            c = 0;
-        }
-        else if (state ==6){
+        else if (state ==2 ){//Exit
 
             exit =1 ;
             c = 0;
         }
+
         mainMenu = 0;
 
         }
@@ -222,7 +194,7 @@ else if (mainMenu ==0 && create ==1 && search ==0 && del ==0 && insert ==0 && di
    if (flag_create ==0){system("cls");}
     flag_create =1;
     node * p=create_node(count);
-    add_node(p);
+    enqueue_node(p);
     count++;
     printf("Please Enter Anything \n");
     getch();
@@ -255,20 +227,17 @@ else if (mainMenu ==0 && del ==1 && search ==0 && create==0){// Delete
 
    if (flag_delete ==0){system("cls");}
     flag_delete =1;
-    int id;
-    printf("Enter Employee ID you wanna Delete=");
-    scanf("%d",&id);
-
-    if (search_node(id) ==null){
-            printf("No Found Employee to delete\n");
+    node * p;
+    p=dequeue_node();
+    if ( p!=null){
+            display_node(p);
+            count--;
         }
         else{
-             node * p=search_node(id);
-             delete_node(p);
-             printf("Employee was deleted to successfully\n");
+            printf("No Employee to dequeue\n");
         }
 
-    count--;
+
     printf("Please Enter Anything \n");
     getch();
     flag_delete=create =search =del=insert=displayAll=flag=state=0;
@@ -286,7 +255,7 @@ else if (mainMenu ==0 && insert==1 && search ==0 ){// Insert
             node * p=search_node(id);
             if (p == last){
                 node * new_node=create_node(count);
-                add_node(new_node);
+                enqueue_node(new_node);
             }
             else{
             node * new_node=create_node(count);
