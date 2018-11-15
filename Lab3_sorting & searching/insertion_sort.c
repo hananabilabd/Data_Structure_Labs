@@ -4,9 +4,10 @@ void insertion_sort(int arr[],int size){
 	int i, temp,counter;
 	for(counter =0 ;counter<size;counter++){
 		temp= arr[counter];
-		for (i=counter-1;i>=0 && arr[i]>temp;i--){
-		arr[i+1]=arr[i];
-	}
+		for (i=counter-1;i>=0 && arr[i]>temp;i--)
+		{
+			arr[i+1]=arr[i];
+		}
 	arr[i+1]=temp;
 	}
 }

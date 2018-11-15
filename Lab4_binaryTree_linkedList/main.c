@@ -1,13 +1,12 @@
-//LinkedList
 #include <stdio.h>
 #include<windows.h>
 #define null 0
 //--------------------------Global Variables----------------
-char menu[7][13]={"New","Search","Delete","Insert","Display All","Display","Exit"};
+char menu[5][13]={"New","Search","Delete","Display All","Exit"};
 
 void display_Items(state){
     int i ;
-  for (i =0 ; i< 7 ; i++){
+  for (i =0 ; i< 5 ; i++){
                 if (i==state){
                     textattr(20);// Red = 4 and White = 7
                     printf("%s\n",menu[i]);
@@ -27,96 +26,167 @@ typedef struct employee employee ;
 typedef struct node node ;
 struct node {
     employee emp ;
-    node *prev ,*next;
+    node *right ,*left;
 };
-
-node *first = null,*last=null;
+node *root =null;
 void textattr(int i)
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), i);
 
 }
-void gotoxy(int x,int y)
- {
-   COORD coord={0,0};
-   coord.X=x;
-   coord.Y=y;
-   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
- }
- node * create_node(int count){
-     node * new_node = (node*)malloc(1*sizeof(node));
-     printf("Enter Employee.ID[%d]= ",count);
-	scanf("%d",&new_node->emp.id);
-	printf("Enter Employee.Salary[%d]= ",count);
-	scanf("%d",&new_node->emp.salary);
-	printf("Enter Employee.Name[%d]= ",count);
-	scanf("%s",&new_node->emp.name);
-
-
-     new_node->next=new_node->prev=null;
-     return new_node;
- }
- void add_node (node * new_node){
-     if(first ==null){
-        first=last=new_node;
-     }
-     else{
-        last->next=new_node;
-        new_node->prev=last;
-        last = new_node;
-     }
- }
- void DisplayAll_node(){
-     node *p = first;
-     while(p !=null){
-        printf("\nemployee.id=%d",p->emp.id);// or p[0].emp.id
-        printf("\nemployee.salary=%d",p->emp.salary);
-        printf("\nemployee.name=%s",p->emp.name);
-        printf("\n------------------------------------");
-        p=p->next;
-     }
- }
- void delete_node(node *p ){
-     if (p ==first){
-        if (p ==last){
-            first = last =null;
-        }
-        else {
-            first= first->next;
-            first->prev=null;
-        }
-     }
-     else if (p ==last){
-         last = last->prev;
-         last->next =null;
-
-     }
-     else {
-        p->prev->next =p->next;
-        p->next->prev=p->prev;
-     }
-     free(p);
- }
  node * search_node(int data){
-     node *Psearch=first;
+     node *Psearch=root;
      while(Psearch !=null){
         if (Psearch->emp.id==data){
             return Psearch;
         }
+        else if (data >Psearch->emp.id){
+            Psearch=Psearch->right;
+        }
         else {
-            Psearch =Psearch->next;
+            Psearch =Psearch->left;
         }
 
      }
      return null;
  }
- void insertAfter_node(node * after ,node *Pnew){
-     Pnew->prev =after;
-     Pnew->next=after->next;
-     after->next->prev=Pnew;
-     after->next=Pnew;
+ node * create_node(int count){
+     int id ;
+     node * new_node = (node*)malloc(1*sizeof(node));
+
+     do {
+        printf("Enter unique Employee.ID[%d]= ",count);
+        scanf("%d",&id);
+     }while(search_node(id) !=null); //search_node must be equal null to exit from the loop
+     new_node->emp.id=id ;
+
+	printf("Enter Employee.Salary[%d]= ",count);
+	scanf("%d",&new_node->emp.salary);
+	printf("Enter Employee.Name[%d]= ",count);
+	scanf("%s",&new_node->emp.name);
+     new_node->right=null;
+     new_node->left=null;
+     return new_node;
+ }
+
+ void add_node (node * pnew){
+     if(root ==null){
+        root=pnew;
+     }
+     else {
+        node *pcurrent =root;
+        node * parent;
+        while (pcurrent !=null){
+            parent =pcurrent;
+            if (pnew->emp.id > pcurrent->emp.id){
+                pcurrent=pcurrent->right;
+            }
+            else {
+                    pcurrent=pcurrent->left;
+            }
+        } //parent here will be the leaf node after which we wanna put our new node
+        if (pnew->emp.id > parent->emp.id){
+            parent->right=pnew;
+        }
+        else {
+            parent->left=pnew;
+        }
+     }
 
  }
+ void DisplayAll_node( node *Pnode){
+     if (Pnode !=null){
+        DisplayAll_node(Pnode->left);
+        display_node(Pnode);
+        DisplayAll_node(Pnode->right);
+     }
+ }
+ node * GetParent_node(node * child ){
+     node * parent = root;
+     while (parent !=null){
+        if (parent ->left ==child || parent->right==child){
+            return parent;
+        }
+        else if (child->emp.id > parent->emp.id){
+             parent= parent->right;
+        }
+        else {
+            parent = parent->left;
+        }
+     }
+     return null;
+ }
+ void delete_node(node *pdelete ){
+     if (pdelete ==root){
+        if (root->left ==null && root->right ==null){
+            root=null;
+        }
+        else if (root->right==null){
+            root=root->left;
+        }
+        else if (root->left==null){
+            root=root->right;
+        }
+        else {// if the node has a child
+            node *pcurrent=root->left; // the node which i wanna make the future root
+            while(pcurrent->right !=null){
+                pcurrent=pcurrent->right;
+            }
+            pcurrent->right=root->right;
+            root=root->left;
+        }
+     }
+     else {
+        node * parent = GetParent_node(pdelete);
+        if (pdelete->left == null && pdelete->right ==null)//leaf
+            {
+            if (parent->left ==pdelete){
+                parent->left=null;
+                }
+            else {
+                parent->right=null;
+                }
+            }
+        else if (pdelete->right ==null)//node  has nodes on left but no at right
+            {
+            if (parent->left ==pdelete){
+                parent->left=pdelete->left;
+                }
+            else {
+                parent->right=pdelete->left;
+                }
+            }
+        else if (pdelete->left ==null)//Pdelete has nodes at right but no nodes at left
+            {
+            if (parent->left ==pdelete){
+                parent->left=pdelete->right;
+                }
+            else {
+                parent->right=pdelete->right;
+                }
+            }
+        else {
+            node *pcurrent=pdelete->left;
+            while(pcurrent->right !=null)
+                    {
+                        pcurrent=pcurrent->right;
+                    }
+            pcurrent->right=pdelete->right;
+            if (parent->left ==pdelete){
+                parent->left=pdelete->left;
+                }
+            else {
+                parent->right=pdelete->left;
+                 }
+            }
+
+     }
+
+
+     //free(p);
+ }
+
+
  void display_node(node * p){
      printf("\nEmployee.id=%d",p->emp.id);
      printf("\nEmployee.=%s",p->emp.name);
@@ -147,7 +217,7 @@ while (exit !=1){
           if (c == 72 ){ //up
              system("cls");
              state--;
-             if (state <0){state =6;}
+             if (state <0){state =4;}
 
 		display_Items(state);
 
@@ -156,7 +226,7 @@ while (exit !=1){
 
            system("cls");
            state++;
-             if (state >6){state =0;}
+             if (state >4){state =0;}
           display_Items(state);
         }
 
@@ -169,7 +239,7 @@ while (exit !=1){
         else if (c == 79 ){//end
 
            system("cls");
-           state =5;
+           state =4;
         display_Items(state);
 
         }
@@ -183,31 +253,20 @@ while (exit !=1){
             c = 0;
             }
             else if (state ==1){
-
             search =1 ;
             c = 0;
 
         }
         else if (state ==2 ){
-
             del =1 ;
             c = 0;
         }
         else if (state ==3){
 
-            insert =1 ;
+            displayAll=1 ;
             c = 0;
         }
-        else if (state ==4){
 
-            displayAll =1 ;
-            c = 0;
-        }
-        else if (state ==5){
-
-            display_one =1 ;
-            c = 0;
-        }
         else if (state ==6){
 
             exit =1 ;
@@ -275,106 +334,16 @@ else if (mainMenu ==0 && del ==1 && search ==0 && create==0){// Delete
     flag_delete=create =search =del=insert=displayAll=flag=state=0;
     mainMenu =1;
 }
-
-else if (mainMenu ==0 && insert==1 && search ==0 ){// Insert
-
-   if (flag_insert ==0){system("cls");}
-    flag_insert =1;
-    int id;
-    printf("Enter Employee ID you wanna Insert after=");
-    scanf("%d",&id);
-    if (search_node(id) !=null){
-            node * p=search_node(id);
-            if (p == last){
-                node * new_node=create_node(count);
-                add_node(new_node);
-            }
-            else{
-            node * new_node=create_node(count);
-            insertAfter_node(p,new_node);
-            }
-        }
-        else{
-            printf("Not Found Employee\n");
-        }
-
-    printf("Please Enter Anything to return to MainMenu \n");
-    getch();
-    mainMenu =1;
-    flag =state=create =search =del=insert=displayAll=flag_insert=0;
-
-
-}
 else if (mainMenu ==0 && displayAll ==1 && search ==0 ){// DisplayAll
 
    if (flag_diaplayAll ==0){system("cls");}
     flag_diaplayAll =1;
 
-    DisplayAll_node();
+    DisplayAll_node(root);
     printf("\nPlease Enter Anything to MainMenu\n");
     getch();
     mainMenu =1;
     displayAll=flag =create =state=flag_diaplayAll=0;
-}
-else if (mainMenu ==0 && displayAll ==0 && search ==0 && display_one==1 ){// DisplayOneByOne
-    node *p = first;
-    if (flag_displayOne ==0){system("cls");printf("Press left or right arrows to switch between linkedList characters");}
-    flag_displayOne =1;
-    flag_forward=0;
-    flag_backward =0;
-    while (esc != 1){
-    y =getch();
-    if (y == -32){
-         y= getch();
-        if(y ==77){//right arrow
-            if (first ==null && last ==null){
-                printf("No Employees\n");
-            }
-            else if (p->next == null ){
-                if (flag_forward ==0){
-                flag_forward =1;
-                display_node(p);
-                printf("Last Employee");
-                }
-                else {
-                    printf("\nNo Forward Employees\n");
-                }
-            }
-            else{
-            display_node(p);
-            p=p->next;
-            }
-	   }
-	    else if (y==75){//left arrow
-            if (first ==null && last ==null){
-                printf("No Employees\n");
-            }
-            else if (p->prev == null){
-                if (flag_backward ==0){
-                    flag_backward =1;
-                    display_node(p);
-                    printf("First Employee");
-                }
-                else {
-                    printf("\nNo Backward Employees\n");
-                }
-            }
-            else {
-
-                display_node(p);
-                p=p->prev;
-            }
-        }
-    }
-    else if (y==27){//Esc
-	   printf("\nByeBye\n");
-	   esc = 1;
-
-   }
-   }
-
-    mainMenu =1;
-    displayAll=flag =create =state=display_one=flag_displayOne=esc=0;
 }
 else if  (exit ==1){
     mainMenu =0;

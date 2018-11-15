@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1541590594 source:f:\engineering\iti\data structure\lab4_binarytree_linkedlist\main.c
+	<stdio.h>
+	<windows.h>
+
+1542051289 source:f:\engineering\iti\data_structure_labs\lab4_binarytree_linkedlist\main.c
+	<stdio.h>
+	<windows.h>
+

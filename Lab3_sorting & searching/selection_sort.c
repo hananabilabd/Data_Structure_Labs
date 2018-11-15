@@ -2,18 +2,20 @@
 #include <stdlib.h>
 // selection sort
 void selection_sort(int arr[], int size){
-    int i,temp,counter,min;
-    for(counter =0 ;counter<size;counter++){
-		min=counter;
-		for (i=counter+1;i<size;i++){
-		if (arr[min]>arr[i]){
-				min=i;
-				}
-		}
-		 temp = arr[counter];
-		 arr[counter]=arr[min];
-		 arr[min]=temp;
-	}
+  int i ,min,counter,temp_i,temp;
+  for(counter = 0;counter<size;counter++){
+	  min =arr[counter];
+	  temp_i=counter;
+	  for(i =counter+1;i<size;i++){
+		  if (arr[i]< min){
+			  min=arr[i];
+			  temp_i=i;
+		  }
+	  }
+	  temp =arr[counter];
+	  arr[counter]=min;
+	  arr[temp_i]=temp;
+  }
 }
 int main (void){
 
@@ -41,3 +43,18 @@ int main (void){
 
 	return 0;
 }
+/*
+void selection_sort(int arr[], int size){
+    int i,temp,counter,min;
+    for(counter =0 ;counter<size;counter++){
+		min=counter;
+		for (i=counter+1;i<size;i++){
+		if (arr[min]>arr[i]){
+				min=i;
+				}
+		}
+		 temp = arr[counter];
+		 arr[counter]=arr[min];
+		 arr[min]=temp;
+	}
+}*/
